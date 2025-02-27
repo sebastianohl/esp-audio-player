@@ -54,128 +54,136 @@
 #include "driver/i2s_std.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef enum {
-    AUDIO_PLAYER_STATE_IDLE,
-    AUDIO_PLAYER_STATE_PLAYING,
-    AUDIO_PLAYER_STATE_PAUSE,
-    AUDIO_PLAYER_STATE_SHUTDOWN
-} audio_player_state_t;
+    typedef enum
+    {
+        AUDIO_PLAYER_STATE_IDLE,
+        AUDIO_PLAYER_STATE_PLAYING,
+        AUDIO_PLAYER_STATE_PAUSE,
+        AUDIO_PLAYER_STATE_SHUTDOWN
+    } audio_player_state_t;
 
-/**
- * @brief Get the audio player state
- *
- * @return the present audio_player_state_t
- */
-audio_player_state_t audio_player_get_state();
+    /**
+     * @brief Get the audio player state
+     *
+     * @return the present audio_player_state_t
+     */
+    audio_player_state_t audio_player_get_state();
 
-typedef enum {
-    AUDIO_PLAYER_CALLBACK_EVENT_IDLE, /**< Player is idle, not playing audio */
-    AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT, /**< Player is playing and playing a new audio file */
-    AUDIO_PLAYER_CALLBACK_EVENT_PLAYING, /**< Player is playing */
-    AUDIO_PLAYER_CALLBACK_EVENT_PAUSE, /**< Player is pausing */
-    AUDIO_PLAYER_CALLBACK_EVENT_SHUTDOWN, /**< Player is shutting down */
-    AUDIO_PLAYER_CALLBACK_EVENT_UNKNOWN_FILE_TYPE, /**< File type is unknown */
-    AUDIO_PLAYER_CALLBACK_EVENT_UNKNOWN /**< Unknown event */
-} audio_player_callback_event_t;
+    typedef enum
+    {
+        AUDIO_PLAYER_CALLBACK_EVENT_IDLE,                   /**< Player is idle, not playing audio */
+        AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT, /**< Player is playing and playing a new audio file */
+        AUDIO_PLAYER_CALLBACK_EVENT_PLAYING,                /**< Player is playing */
+        AUDIO_PLAYER_CALLBACK_EVENT_PAUSE,                  /**< Player is pausing */
+        AUDIO_PLAYER_CALLBACK_EVENT_SHUTDOWN,               /**< Player is shutting down */
+        AUDIO_PLAYER_CALLBACK_EVENT_UNKNOWN_FILE_TYPE,      /**< File type is unknown */
+        AUDIO_PLAYER_CALLBACK_EVENT_UNKNOWN                 /**< Unknown event */
+    } audio_player_callback_event_t;
 
-typedef struct {
-    audio_player_callback_event_t audio_event;
-    void *user_ctx;
-} audio_player_cb_ctx_t;
+    typedef struct
+    {
+        audio_player_callback_event_t audio_event;
+        void *user_ctx;
+    } audio_player_cb_ctx_t;
 
-/** Audio callback function type */
-typedef void (*audio_player_cb_t)(audio_player_cb_ctx_t *);
+    /** Audio callback function type */
+    typedef void (*audio_player_cb_t)(audio_player_cb_ctx_t *);
 
-/**
- * @brief Play mp3 audio file.
- *
- * Will interrupt a present playback and start the new playback
- * as soon as possible.
- *
- * @param fp - If ESP_OK is returned, will be fclose()ed by the audio system
- *             when the playback has completed or in the event of a playback error.
- *             If not ESP_OK returned then should be fclose()d by the caller.
- * @return
- *    - ESP_OK: Success in queuing play request
- *    - Others: Fail
- */
-esp_err_t audio_player_play(FILE *fp);
+    /**
+     * @brief Play mp3 audio file.
+     *
+     * Will interrupt a present playback and start the new playback
+     * as soon as possible.
+     *
+     * @param fp - If ESP_OK is returned, will be fclose()ed by the audio system
+     *             when the playback has completed or in the event of a playback error.
+     *             If not ESP_OK returned then should be fclose()d by the caller.
+     * @return
+     *    - ESP_OK: Success in queuing play request
+     *    - Others: Fail
+     */
+    esp_err_t audio_player_play(FILE *fp);
 
-/**
- * @brief Pause playback
- *
- * @return
- *    - ESP_OK: Success in queuing pause request
- *    - Others: Fail
- */
-esp_err_t audio_player_pause(void);
+    esp_err_t audio_player_play_stream(char *url);
 
-/**
- * @brief Resume playback
- *
- * Has no effect if playback is not in progress
- * @return esp_err_t
- *    - ESP_OK: Success in queuing resume request
- *    - Others: Fail
- */
-esp_err_t audio_player_resume(void);
+    /**
+     * @brief Pause playback
+     *
+     * @return
+     *    - ESP_OK: Success in queuing pause request
+     *    - Others: Fail
+     */
+    esp_err_t audio_player_pause(void);
 
-/**
- * @brief Stop playback
- *
- * Has no effect if playback is already stopped
- * @return esp_err_t
- *    - ESP_OK: Success in queuing resume request
- *    - Others: Fail
- */
-esp_err_t audio_player_stop(void);
+    /**
+     * @brief Resume playback
+     *
+     * Has no effect if playback is not in progress
+     * @return esp_err_t
+     *    - ESP_OK: Success in queuing resume request
+     *    - Others: Fail
+     */
+    esp_err_t audio_player_resume(void);
 
-/**
- * @brief Register callback for audio event
- *
- * @param call_back Call back function
- * @param user_ctx User context
- * @return
- *    - ESP_OK: Success
- *    - Others: Fail
- */
-esp_err_t audio_player_callback_register(audio_player_cb_t call_back, void *user_ctx);
+    /**
+     * @brief Stop playback
+     *
+     * Has no effect if playback is already stopped
+     * @return esp_err_t
+     *    - ESP_OK: Success in queuing resume request
+     *    - Others: Fail
+     */
+    esp_err_t audio_player_stop(void);
 
-typedef enum {
-    AUDIO_PLAYER_MUTE,
-    AUDIO_PLAYER_UNMUTE
-} AUDIO_PLAYER_MUTE_SETTING;
+    /**
+     * @brief Register callback for audio event
+     *
+     * @param call_back Call back function
+     * @param user_ctx User context
+     * @return
+     *    - ESP_OK: Success
+     *    - Others: Fail
+     */
+    esp_err_t audio_player_callback_register(audio_player_cb_t call_back, void *user_ctx);
 
-typedef esp_err_t (*audio_player_mute_fn)(AUDIO_PLAYER_MUTE_SETTING setting);
-typedef esp_err_t (*audio_reconfig_std_clock)(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch);
-typedef esp_err_t (*audio_player_write_fn)(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms);
+    typedef enum
+    {
+        AUDIO_PLAYER_MUTE,
+        AUDIO_PLAYER_UNMUTE
+    } AUDIO_PLAYER_MUTE_SETTING;
 
-typedef struct {
-    audio_player_mute_fn mute_fn;
-    audio_reconfig_std_clock clk_set_fn;
-    audio_player_write_fn write_fn;
-    UBaseType_t priority; /*< FreeRTOS task priority */
-    BaseType_t coreID; /*< ESP32 core ID */
-} audio_player_config_t;
+    typedef esp_err_t (*audio_player_mute_fn)(AUDIO_PLAYER_MUTE_SETTING setting);
+    typedef esp_err_t (*audio_reconfig_std_clock)(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch);
+    typedef esp_err_t (*audio_player_write_fn)(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms);
 
-/**
- * @brief Initialize hardware, allocate memory, create and start audio task.
- * Call before any other 'audio' functions.
- *
- * @param port - The i2s port for output
- * @return esp_err_t
- */
-esp_err_t audio_player_new(audio_player_config_t config);
+    typedef struct
+    {
+        audio_player_mute_fn mute_fn;
+        audio_reconfig_std_clock clk_set_fn;
+        audio_player_write_fn write_fn;
+        UBaseType_t priority; /*< FreeRTOS task priority */
+        BaseType_t coreID;    /*< ESP32 core ID */
+    } audio_player_config_t;
 
-/**
- * @brief Shut down audio task, free allocated memory.
- *
- * @return esp_err_t ESP_OK upon success, ESP_FAIL if unable to shutdown due to retries exhausted
- */
-esp_err_t audio_player_delete();
+    /**
+     * @brief Initialize hardware, allocate memory, create and start audio task.
+     * Call before any other 'audio' functions.
+     *
+     * @param port - The i2s port for output
+     * @return esp_err_t
+     */
+    esp_err_t audio_player_new(audio_player_config_t config);
+
+    /**
+     * @brief Shut down audio task, free allocated memory.
+     *
+     * @return esp_err_t ESP_OK upon success, ESP_FAIL if unable to shutdown due to retries exhausted
+     */
+    esp_err_t audio_player_delete();
 
 #ifdef __cplusplus
 }

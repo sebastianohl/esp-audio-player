@@ -5,9 +5,10 @@ set(srcs
 
 set(includes
     "include"
+    $ENV{IDF_PATH}/components/esp_http_client/lib/include
 )
 
-set(requires "")
+set(requires "esp_http_client" "tcp_transport")
 
 if(CONFIG_AUDIO_PLAYER_ENABLE_MP3)
     list(APPEND srcs "audio_mp3.cpp")
